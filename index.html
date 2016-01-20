@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Product Assembler Demo</title>
+  <script src="./scripts/PropertyProxy.js"></script>
+  <script src="./scripts/ProductClass.js"></script>
+  <script src="./scripts/ProductFormView.js"></script>
+  <style type="text/css">
+    #main {
+      display: block;
+    }
+    fieldset {
+      display: inline-block;
+      vertical-align: top;
+    }
+    input {
+      display: block;
+    }
+    .valid {
+      background-color: lightgreen;
+    }
+    .invalid {
+      background-color: lightcoral;
+    }
+  </style>
+</head>
+<body>
+  <div id="main"></div>
+  <hr>
+  <div id="meta">
+    <fieldset>
+      <legend>Schema</legend>
+      <pre></pre>
+    </fieldset>
+    <fieldset>
+      <legend>Model</legend>
+      <pre></pre>
+    </fieldset>
+    <fieldset>
+      <legend>ProductClass</legend>
+      <pre></pre>
+    </fieldset>
+  </div>
+  <script>
+  /* global PropertyProxy, ProductClass, ProductFormView */
+  'use strict'
+  var main = document.getElementById('main')
+  var meta = document.getElementById('meta').getElementsByTagName('pre')
+
+  var mySchema =  {
+    "Product": "WidgetA200",
+    "Description": "The best widget you can buy",
+    "Base Price": 800,
+    "Ram": {
+      "4GB": 0,
+      "8GB": 50
+    },
+    "Extra Software": {
+      "No": 0,
+      "Yes": 50
+    },
+    "Case": {
+      "None": 0,
+      "ModelN210": 50
+    },
+    "Insurance": {
+      "None": 0,
+      "1 year": 100,
+      "5 years": 300
+    }
+  }
+  var myModel = ProductClass(PropertyProxy(mySchema))
+  var myView = ProductFormView(mySchema)
+
+  //--------------------------------------------
+
+  Object.freeze(myModel)
+
+  myView.addEventListener('change', myViewController)
+  main.appendChild(myView)
+
+  window.inputs = myView.getElementsByTagName('input')
+  for (window.i = 0; window.i < window.inputs.length; window.i++) {
+    window.inputs[window.i].className = 'invalid'
+  }
+
+  delete window.inputs
+  delete window.i
+
+  getMeta()
+
+  //--------------------------------------------
+
+  function myViewController(event) {
+    var val = event.target.value
+    var id = event.target.id
+
+    if (myModel[id] !== 'undefined') {
+      myModel[id] = val
+      if (myModel[id] === val) {
+        setStyle(event.target, 'valid')
+      }
+      else {
+        myModel[id] = null
+        setStyle(event.target, 'invalid')
+      }
+      getMeta()
+    }
+  }
+
+  function setStyle(el, classNames) {
+    el.className = classNames
+  }
+
+  function getMeta() {
+    meta[0].innerText = JSON.stringify(mySchema, undefined, 2)
+    meta[1].innerText = JSON.stringify(myModel, undefined, 2)
+    meta[2].innerText = 'price: ' + myModel.price
+    + '\nmissingParts: ' + myModel.missingParts
+    + '\nassembled: ' + myModel.isAssembled
+  }
+  </script>
+</body>
+</html>
