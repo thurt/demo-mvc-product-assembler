@@ -1,4 +1,4 @@
 Demo MVC Product Assembler
 =======================
 
-![demo image](./demo_image.png "demo image")
+![demo image](https://raw.githubusercontent.com/thurt/demo-mvc-product-assembler/master/demo_image.PNG "demo image")
